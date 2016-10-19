@@ -3,24 +3,33 @@ import * as Promise from 'bluebird'
 
 import {generateAllParensCombinations} from './parens-combos';
 
-/**
- * Prompt the user for the input for the generate params problem
- */
-function generateParensPrompt() : Promise<any> {
-    let question : Question = {
-        type: "input",
-        name: "num_parens",
-        message: "Enter the number of paren pairs: "
-    };
-    return (prompt(question) as any).then((answers : Answers) => {
-        let num = parseInt(answers["num_parens"] as string);
-        if (num === undefined || num === null || isNaN(num)) {
-            generateParensPrompt();
-        } else {
-            console.log(generateAllParensCombinations(num).join(', '));
-            return Promise.resolve() as Promise<any>;
-        }
-    });
-}
+namespace problem1 {
+    /**
+     * Prompt the user for the input for the generate params problem
+     */
+    export function problemPrompt() : Promise<any> {
+        let question : Question = {
+            type: "input",
+            name: "num_parens",
+            message: "Enter the number of paren pairs: "
+        };
+        return (prompt(question) as any).then((answers : Answers) => {
+            let num = parseInt(answers["num_parens"] as string);
+            if (num === undefined || num === null || isNaN(num)) {
+                problemPrompt();
+            } else {
+                console.log(generateAllParensCombinations(num).join(', '));
+                return Promise.resolve();
+            }
+        });
+    }
 
-export = generateParensPrompt;
+    /**
+     * Value for this problem in the menu
+     */
+    export function menuValue() : string {
+        return 'Valid Parens: (()) ()()';
+    }
+};
+
+export = problem1;

@@ -12,10 +12,20 @@
       "from": "@types/chai@>=3.4.34 <4.0.0",
       "resolved": "https://registry.npmjs.org/@types/chai/-/chai-3.4.34.tgz"
     },
+    "@types/glob": {
+      "version": "5.0.30",
+      "from": "@types/glob@latest",
+      "resolved": "https://registry.npmjs.org/@types/glob/-/glob-5.0.30.tgz"
+    },
     "@types/inquirer": {
       "version": "0.0.29",
       "from": "@types/inquirer@0.0.29",
       "resolved": "https://registry.npmjs.org/@types/inquirer/-/inquirer-0.0.29.tgz"
+    },
+    "@types/minimatch": {
+      "version": "2.0.29",
+      "from": "@types/minimatch@*",
+      "resolved": "https://registry.npmjs.org/@types/minimatch/-/minimatch-2.0.29.tgz"
     },
     "@types/mocha": {
       "version": "2.2.32",
@@ -188,7 +198,7 @@
     },
     "glob": {
       "version": "7.0.5",
-      "from": "glob@7.0.5",
+      "from": "https://registry.npmjs.org/glob/-/glob-7.0.5.tgz",
       "resolved": "https://registry.npmjs.org/glob/-/glob-7.0.5.tgz"
     },
     "graceful-readlink": {

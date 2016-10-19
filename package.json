@@ -23,11 +23,13 @@
   "dependencies": {
     "@types/bluebird": "^3.0.35",
     "@types/chai": "^3.4.34",
+    "@types/glob": "^5.0.30",
     "@types/inquirer": "0.0.29",
     "@types/mocha": "^2.2.32",
     "bluebird": "^3.4.6",
     "chai": "^3.5.0",
     "concurrently": "^3.1.0",
+    "glob": "https://registry.npmjs.org/glob/-/glob-7.0.5.tgz",
     "inquirer": "^1.2.2",
     "mocha": "^3.1.2",
     "typescript": "^2.0.3"
