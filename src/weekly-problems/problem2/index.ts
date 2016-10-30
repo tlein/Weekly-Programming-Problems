@@ -1,7 +1,7 @@
 import {Question, prompt, Answers} from 'inquirer';
 import * as Promise from 'bluebird'
 
-import {Dependency} from './build-order';
+import {Dependency, determineBuildOrder} from './build-order';
 
 namespace problem1 {
     /**
@@ -10,8 +10,8 @@ namespace problem1 {
     export function problemPrompt() : Promise<any> {
         let resolve = () => Promise.resolve();
         let reject = (reason : string) => Promise.reject(reason);
-        return this._projectsPrompt().then(
-            () => this._dependenciesPrompt().then(resolve, reject),
+        return _projectsPrompt().then(
+            (projects : string[]) => _dependenciesPrompt(projects).then(resolve, reject),
             reject);
     }
 
@@ -19,20 +19,34 @@ namespace problem1 {
         let question : Question = {
             type: "input",
             name: "projects",
-            message: "Enter a comma delimited list of projects to build (a, b, c, d): "
+            message: "Enter a comma delimited list of projects to build (ex: a, b, c, d): "
         };
         return (prompt(question) as any).then((answers : Answers) => {
             try {
-                let projects = this.processProjectsInput(answers["projects"] as string);
-                return Promise.resolve();
+                let projects = processProjectsInput(answers["projects"] as string);
+                return Promise.resolve(projects);
             } catch (e) {
                 return Promise.reject(e.message);
             }
         });
     }
 
-    function _dependenciesPrompt() : Promise<any> {
-        return null;
+    function _dependenciesPrompt(projects : string[]) : Promise<any> {
+        let question : Question = {
+            type: "input",
+            name: "dependencies",
+            message: "Enter a comma delimited list of dependecies to build where the first project depends on the second (ex: (a, b), (c, d)): "
+        };
+        return (prompt(question) as any).then((answers : Answers) => {
+            try {
+                let dependencies = processDependenciesInput(answers['dependencies'] as string, projects);
+                console.log(determineBuildOrder(projects, dependencies).join(', '));
+                return Promise.resolve();
+            } catch (e) {
+                console.log(e.message);
+                return _dependenciesPrompt(projects);
+            }
+        });
     }
 
     /**
@@ -66,21 +80,28 @@ namespace problem1 {
         if (input === "") {
             return [];
         }
+        let dependencies : Dependency[] = [];
         let dependencyStrings = input.split(/(\([^)]+\))/);
         for (let i = 0; i < dependencyStrings.length; i++) {
             dependencyStrings[i] = dependencyStrings[i].trim();
-            if (dependencyStrings[i] === "") {
+            if (_dependencyStringShouldBeSkipped(dependencyStrings, i)) {
                 continue;
             }
-
-            if (dependencyStrings[i] === "," && (_dependencyStringIsNotDependency(dependencyStrings, i-1)) || _dependencyStringIsNotDependency(dependencyStrings, i+1)) {
-                throw new Error("Dependency cannot be blank");
-            }
-            if (!_dependencyFormatCorrectly(dependencyStrings[i], projects)) {
-                throw new Error("Dependency not formatted correctly, it should be in the form (a, b) where project a depends on b");
+            if (_dependencyFormatCorrectly(dependencyStrings[i], projects)) {
+                dependencies.push(_dependencyFromDependencyInput(dependencyStrings[i]));
             }
         }
-        return null;
+        return dependencies;
+    }
+
+    function _dependencyStringShouldBeSkipped(dependencyStrings : string[], i : number) : boolean {
+        if (dependencyStrings[i] === "," && (_dependencyStringIsNotDependency(dependencyStrings, i-1) || _dependencyStringIsNotDependency(dependencyStrings, i+1))) {
+            throw new Error("Dependency cannot be blank");
+        }
+        if (dependencyStrings[i] === "" || dependencyStrings[i] === ",") {
+            return true;
+        }
+        return false;
     }
 
     function _dependencyStringIsNotDependency(dependencyStrings : string[], index : number) : boolean {
@@ -91,25 +112,40 @@ namespace problem1 {
     }
 
     function _dependencyFormatCorrectly(dependencyInput : string, projects : string[]) : boolean {
-        if (dependencyInput.charAt(0) !== '(' || dependencyInput.charAt(dependencyInput.length - 1) !== ')') {
-            return false;
+        let dependency = _dependencyFromDependencyInput(dependencyInput);
+        if (projects.indexOf(dependency.project) === -1 || projects.indexOf(dependency.dependedOnProject) === -1) {
+            throw new Error("Dependency pieces aren't projects provided by user")
         }
-        dependencyInput = dependencyInput.substring(1, dependencyInput.length - 1);
-        let dependencyPieces = dependencyInput.split(",");
-        if (dependencyPieces.length !== 2) {
-            return false;
-        }
-        let project = dependencyPieces[0].trim();
-        let dependedOnProject = dependencyPieces[1].trim();
-        if (project === "" || dependedOnProject === "") {
-            return false;
-        }
-
-        if (projects.indexOf(project) === -1 || projects.indexOf(dependedOnProject) === -1) {
-            return false;
-        }
-
         return true;
+    }
+
+    function _dependencyFromDependencyInput(dependencyInput : string) : Dependency {
+        if (!_dependencyWrappedInParens(dependencyInput)) {
+            throw new Error("Dependency not wrapped in parens");
+        }
+        let dependencyPieces = _removeParensFromDependencyInput(dependencyInput).split(",");
+        if (dependencyPieces.length !== 2) {
+            throw new Error("Too many elements in dependency");
+        }
+        let dependency = {
+            project: dependencyPieces[0].trim(),
+            dependedOnProject: dependencyPieces[1].trim()
+        };
+        if (dependency.project === "" || dependency.dependedOnProject === "") {
+            throw new Error("Portion of dependency is blank");
+        }
+        return dependency;
+    }
+
+    function _dependencyWrappedInParens(dependencyInput : string) : boolean {
+        return (
+            dependencyInput.charAt(0) === '(' &&
+            dependencyInput.charAt(dependencyInput.length - 1) === ')'
+        );
+    }
+
+    function _removeParensFromDependencyInput(dependencyInput : string) : string {
+        return dependencyInput.substring(1, dependencyInput.length - 1);
     }
 
     /**

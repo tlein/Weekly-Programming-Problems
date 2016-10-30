@@ -10,6 +10,14 @@ Contains various programming problems done on a weekly basis
 
    > Output: `((())), (()()), (())(), ()(()), ()()()`
 
+1. Build order: given projects to build and dependencies print out the correct build order.
+
+   > Input:
+   `projects: a, b, c, d
+   dependencies: (a, b), (c, b), (c, d)`
+
+   > Output: `b, a, d, c`
+
 ## Setup Instructions
 
 ### Installing Dependencies
