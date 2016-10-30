@@ -16,7 +16,7 @@ namespace problem1 {
         return (prompt(question) as any).then((answers : Answers) => {
             let num = parseInt(answers["num_parens"] as string);
             if (num === undefined || num === null || isNaN(num)) {
-                problemPrompt();
+                return Promise.reject("Not a valid number"); 
             } else {
                 console.log(generateAllParensCombinations(num).join(', '));
                 return Promise.resolve();

@@ -112,5 +112,10 @@ function _keyFromProblemSelection(selection : string, choices : ChoiceType[]) : 
  */
 function _runProblem(key : string) : Promise<any> {
     let problemModule = require('./problem' + key + '/');
-    return problemModule.problemPrompt().then(() => Promise.resolve());
+    let resolve = () => Promise.resolve();
+    let reject = (reason : string) => {
+        console.log(reason);
+        return _runProblem(key);
+    };
+    return problemModule.problemPrompt().then(resolve, reject);
 }

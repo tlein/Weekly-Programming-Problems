@@ -6,8 +6,10 @@
   "scripts": {
     "start": "npm run build && npm run weeklyproblems",
     "test": "npm run build && npm run mocha",
+    "test:debug": "npm run build && npm run mocha:debug",
     "build": "tsc",
     "mocha": "mocha \"build/weekly-problems-tests/**/*.spec.js\"",
+    "mocha:debug": "mocha \"build/weekly-problems-tests/**/*.spec.js\" --debug-brk",
     "weeklyproblems": "node build/weekly-problems/main.js"
   },
   "repository": {
